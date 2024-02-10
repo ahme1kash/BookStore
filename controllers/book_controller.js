@@ -1,5 +1,6 @@
 import book from '../models/book_model.js'
-const getAllBooks = async(req,res)=>{
+const book_controller = {
+getAllBooks :async(req,res)=>{
    try{
     const books = await book.find();
     res.json(books)
@@ -8,19 +9,20 @@ const getAllBooks = async(req,res)=>{
     res.status(500).json({ message: error.message });
     console.log(error.mesage)
    }
-}
-const addNewBook = async(req,res)=>{
+},
+addNewBook : async(req,res)=>{
     try{
         const author = req.body.author
         const title = req.body.title
         const existingBook = await book.findOne({author:author,title:title});
         if (existingBook){
-            console.log(existingBook)
+            console.log("Book already exists\n",existingBook)
             // console.log(existingUSer.name)
             return res.status(409).redirect("back");
         }
-        
+    const new_book_id = await book.find().count()+1;
     const newBook = new book({
+        _id:"book-"+new_book_id,
         author:req.body.author,
         title:req.body.title,
         description: req.body.description,
@@ -40,10 +42,10 @@ const addNewBook = async(req,res)=>{
         res.json(err.messaage); 
         console.log(err.messaage)
     }
-}
-const updateBook = async(req,res)=>{
+},
+updateBook:async(req,res)=>{
     try{
-        const originalBookInfo = await book.findById(req.params.book_id)
+        const originalBook = await book.findById(req.params.book_id)
         console.log(originalBook)
         const updatedBook = {
             author :req.body.author,
@@ -57,14 +59,14 @@ const updateBook = async(req,res)=>{
             updatedBook,
             {new:true}  // This is important to add.
             )
-            console.log(originalBookInfo,updatedInfo)
+            console.log(originalBook,updatedInfo)
             res.json(updated)
         }
         catch(err){
             console.log(err.messaage)
         }
-}
-const deleteBook = async(req,res)=>{
+},
+deleteBook : async(req,res)=>{
     try{
         console.log(req.params)
         const book_removed = await book.findByIdAndDelete(req.params.book_id)
@@ -74,9 +76,9 @@ const deleteBook = async(req,res)=>{
     catch(err){
         console.log(err.message)
     }
-  }
+  },
  
- const deleteAll = async(req,res)=>{
+ deleteAll :async(req,res)=>{
 
    try{
     console.log("Delete Function Called")
@@ -87,10 +89,5 @@ catch(err){
     res.json(err.message)
 }
 }
-  export default{
-    addNewBook,
-    getAllBooks,
-    updateBook,
-    deleteBook,
-    deleteAll
-  }
+}
+  export default book_controller

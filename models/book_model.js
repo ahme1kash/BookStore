@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 const book_schema = new mongoose.Schema({
+    _id:String,
     author:{
         type:String
     },
